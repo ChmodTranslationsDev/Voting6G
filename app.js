@@ -223,7 +223,7 @@ $voteBtn.onclick = async () => {
   }
 };
 
-// ===== СТАТУС =====
+// ===== СТАТУС (ПРОЦЕНТЫ + ПОЛОСКИ) =====
 async function loadStatus() {
   try {
     const data = await jsonp(API + '?action=status');
@@ -232,12 +232,22 @@ async function loadStatus() {
     const banner = document.getElementById('winnerBanner');
     document.getElementById('winnerName').textContent = '🏆 ' + data.winner;
 
+    const total = data.total || 1;
     const entries = Object.entries(data.results || {}).sort((a, b) => b[1] - a[1]);
+
     document.getElementById('winnerStats').innerHTML = entries.map(([n, c]) => {
-      const word = c === 1 ? 'голос' : (c < 5 ? 'голоса' : 'голосов');
-      return `<div class="row ${n === data.winner ? 'winner' : ''}">
-        <span>${n}</span><span>${c} ${word}</span>
-      </div>`;
+      const pct = (c / total * 100).toFixed(1);
+      const isWinner = n === data.winner;
+      return `
+        <div style="margin:10px 0;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;${isWinner ? 'color:var(--success);font-weight:600;' : ''}">
+            <span>${n}</span><span>${pct}%</span>
+          </div>
+          <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:3px;"></div>
+          </div>
+        </div>
+      `;
     }).join('');
 
     banner.hidden = false;
