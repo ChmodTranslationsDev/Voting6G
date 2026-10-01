@@ -59,13 +59,27 @@ function setStatus(text, online = true) {
   $status.innerHTML = `<span class="dot" style="${online ? '' : 'background:#ff5c7c;box-shadow:0 0 8px #ff5c7c'}"></span>${text}`;
 }
 
-function showScreen(id) {
-  ['roleScreen', 'codeScreen', 'voteScreen'].forEach(s => {
-    document.getElementById(s).hidden = (s !== id);
-  });
+// ===== ЭКРАНЫ =====
+function showRoleScreen() {
+  document.getElementById('roleScreen').hidden = false;
+  document.getElementById('codeScreen').hidden = true;
+  document.getElementById('voteScreen').hidden = true;
 }
 
-// ===== Экран 1 =====
+function showCodeScreen() {
+  document.getElementById('roleScreen').hidden = true;
+  document.getElementById('codeScreen').hidden = false;
+  document.getElementById('voteScreen').hidden = true;
+  setTimeout(() => document.getElementById('candidateCodeInput').focus(), 100);
+}
+
+function showVoteScreen() {
+  document.getElementById('roleScreen').hidden = true;
+  document.getElementById('codeScreen').hidden = true;
+  document.getElementById('voteScreen').hidden = false;
+}
+
+// ===== РОЛЬ =====
 document.getElementById('voterBtn').onclick = () => {
   State.role = 'voter';
   State.candidateCode = null;
@@ -74,12 +88,11 @@ document.getElementById('voterBtn').onclick = () => {
 };
 
 document.getElementById('candidateBtn').onclick = () => {
-  showScreen('codeScreen');
-  setTimeout(() => document.getElementById('candidateCodeInput').focus(), 100);
+  showCodeScreen();
 };
 
-// ===== Экран 2 =====
-document.getElementById('codeBackBtn').onclick = () => showScreen('roleScreen');
+// ===== КОД КАНДИДАТА =====
+document.getElementById('codeBackBtn').onclick = showRoleScreen;
 document.getElementById('codeSubmitBtn').onclick = submitCode;
 document.getElementById('candidateCodeInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitCode();
@@ -87,12 +100,19 @@ document.getElementById('candidateCodeInput').addEventListener('keydown', e => {
 
 async function submitCode() {
   const input = document.getElementById('candidateCodeInput');
+  const errorBox = document.getElementById('codeError');
   const code = input.value.trim();
-  if (!code) return;
+  errorBox.textContent = '';
+
+  if (!code) {
+    errorBox.textContent = '❌ Введите код';
+    return;
+  }
 
   try {
     const res = await jsonp(API + '?action=checkCandidateCode&code=' + encodeURIComponent(code));
     if (res.error) {
+      errorBox.textContent = '❌ Неверный код';
       input.style.borderColor = 'var(--error)';
       setTimeout(() => { input.style.borderColor = ''; }, 1500);
       return;
@@ -105,14 +125,13 @@ async function submitCode() {
     startVoting();
   } catch (err) {
     console.error(err);
-    input.style.borderColor = 'var(--error)';
-    setTimeout(() => { input.style.borderColor = ''; }, 1500);
+    errorBox.textContent = '❌ Ошибка. Попробуй ещё раз';
   }
 }
 
-// ===== Экран 3 =====
+// ===== ГОЛОСОВАНИЕ =====
 async function startVoting() {
-  showScreen('voteScreen');
+  showVoteScreen();
   $roleBadge.textContent = State.role === 'candidate' ? 'Кандидат' : 'Голосующий';
   $voteBtn.querySelector('span').textContent = 'Проголосовать';
   $voteBtn.disabled = true;
@@ -167,7 +186,7 @@ function select(el, name) {
   $voteBtn.disabled = false;
 }
 
-// ===== Голос =====
+// ===== ГОЛОС =====
 $voteBtn.onclick = async () => {
   if (!selected) return;
   $voteBtn.disabled = true;
@@ -204,7 +223,7 @@ $voteBtn.onclick = async () => {
   }
 };
 
-// ===== Статус =====
+// ===== СТАТУС =====
 async function loadStatus() {
   try {
     const data = await jsonp(API + '?action=status');
@@ -234,5 +253,15 @@ async function loadStatus() {
   }
 }
 
-// ===== Старт =====
-showScreen('roleScreen');
+// ===== ВЫХОД =====
+document.getElementById('exitBtn').onclick = (e) => {
+  e.preventDefault();
+  State.role = null;
+  State.candidateCode = null;
+  State.blocked = [];
+  selected = null;
+  showRoleScreen();
+};
+
+// ===== СТАРТ =====
+showRoleScreen();
