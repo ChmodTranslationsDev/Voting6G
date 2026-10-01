@@ -556,6 +556,98 @@ input:focus, select:focus { border-color: var(--accent); }
   color: var(--error);
 }
 
+/* ===== Экран роли ===== */
+.role-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.role-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px 32px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px -20px rgba(0,0,0,.6);
+}
+
+.role-icon {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.role-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.role-hint {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+
+.role-card .role-btn {
+  width: 100%;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.role-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  margin-bottom: 12px;
+}
+
+.role-input:focus {
+  border-color: var(--accent);
+}
+
+.role-back-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 18px;
+  transition: color .2s;
+}
+
+.role-back-btn:hover {
+  color: var(--text);
+}
+
+.role-admin-link {
+  display: inline-block;
+  margin-top: 22px;
+  color: var(--text-dim);
+  font-size: 11px;
+  text-decoration: none;
+  opacity: .4;
+  transition: opacity .2s;
+}
+
+.role-admin-link:hover {
+  opacity: 1;
+}
+
 .header {
   position: relative;
 }
