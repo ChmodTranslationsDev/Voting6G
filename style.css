@@ -908,3 +908,229 @@ html, body {
     padding: 40px 16px 32px;
   }
 }
+
+/* ============================================
+   МОБИЛЬНАЯ ВЕРСИЯ — ВСЁ В СТОЛБЕЦ
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* ---- Глобально ---- */
+  html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 32px 16px;
+  }
+
+  /* ---- Контейнер и все обёртки ---- */
+  .container,
+  .role-wrapper,
+  .login-wrapper {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---- Карточки ---- */
+  .role-card,
+  .login-card,
+  .card {
+    width: 100%;
+    max-width: 100%;
+    padding: 24px 18px;
+    margin: 0 0 16px 0;
+    border-radius: 14px;
+  }
+
+  /* ---- ВСЕ flex-контейнеры → столбец ---- */
+  .row-flex,
+  .role-buttons,
+  .stats,
+  .filter-buttons,
+  .sort-buttons,
+  .footer,
+  .admin-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  /* ---- ВСЕ дети flex-контейнеров → на всю ширину ---- */
+  .row-flex > *,
+  .role-buttons > *,
+  .stats > *,
+  .filter-buttons > *,
+  .sort-buttons > *,
+  .footer > *,
+  .admin-grid > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: none !important;
+  }
+
+  /* ---- Инпуты, селекты, кнопки ---- */
+  input,
+  select,
+  button,
+  .btn,
+  .vote-btn,
+  .role-btn,
+  .login-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* ---- Кандидаты: аватар + имя + чек в строке, но компактно ---- */
+  .candidates {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .candidate {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .candidate .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .candidate .name {
+    font-size: 15px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .candidate .check {
+    flex-shrink: 0;
+  }
+
+  /* ---- Статистика в админе — строки в столбец ---- */
+  .stats-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 8px 0;
+    width: 100%;
+  }
+
+  /* ---- Заголовки ---- */
+  h1 {
+    font-size: 22px !important;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 17px;
+    text-align: center;
+  }
+
+  .subtitle,
+  .role-hint,
+  .login-hint,
+  .hint {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* ---- Header в админе — логаут под заголовком ---- */
+  .header {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logout-btn {
+    position: static !important;
+    width: auto !important;
+    align-self: center;
+  }
+
+  /* ---- Сообщения ---- */
+  .msg {
+    padding: 12px 14px;
+    font-size: 13px;
+    width: 100%;
+  }
+
+  /* ---- ID боксы и коды ---- */
+  .id-box {
+    font-size: 12px;
+    padding: 10px;
+    word-break: break-all;
+    width: 100%;
+  }
+
+  /* ---- Разделители ---- */
+  .divider {
+    width: 100%;
+  }
+
+  /* ---- Кнопки в логине ---- */
+  .login-card .btn,
+  .role-card .btn {
+    width: 100%;
+  }
+
+  /* ---- Карточка логина по центру ---- */
+  .login-wrapper,
+  .role-wrapper {
+    min-height: auto;
+    padding: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+}
+
+/* ===== Очень узкие экраны ===== */
+@media (max-width: 380px) {
+  body {
+    padding: 20px 12px;
+  }
+
+  .role-card,
+  .login-card,
+  .card {
+    padding: 20px 14px;
+  }
+
+  h1 {
+    font-size: 20px !important;
+  }
+
+  .candidate {
+    padding: 12px 14px;
+  }
+
+  .candidate .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .candidate .name {
+    font-size: 14px;
+  }
+}
