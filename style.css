@@ -18,14 +18,25 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
-  min-height: 100dvh;          /* ← для мобилок, учитывает адресную строку */
+
+  /* Высота с учётом шторки браузера на мобиле */
+  min-height: 100vh;       /* fallback для старых */
+  min-height: 100dvh;      /* динамическая — пересчитывается при показе/скрытии шторки */
+  min-height: 100svh;      /* small viewport — минимум, всегда помещается */
+
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -1132,5 +1143,27 @@ html, body {
 
   .candidate .name {
     font-size: 14px;
+  }
+}
+
+/* ============================================
+   МОБИЛЬНАЯ ВЫСОТА С УЧЁТОМ ШТОРКИ БРАУЗЕРА
+   ============================================ */
+@media (max-width: 768px) {
+  html {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    height: auto;
+    padding: 24px 16px 40px;
+  }
+}
+
+/* iOS Safari — отдельный хак */
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: -webkit-fill-available;
   }
 }
