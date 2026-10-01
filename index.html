@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Выборы старосты</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <main class="container">
+
+    <!-- ЭКРАН 1: РОЛЬ -->
+    <section id="roleScreen" class="screen" hidden>
+      <header class="header">
+        <div class="badge">Голосование</div>
+        <h1>Выборы старосты</h1>
+        <p class="subtitle">Кто вы?</p>
+      </header>
+
+      <div class="role-buttons">
+        <button class="role-btn" id="voterBtn">
+          <div class="role-title">Голосующий</div>
+          <div class="role-desc">Войти и проголосовать</div>
+        </button>
+        <button class="role-btn" id="candidateBtn">
+          <div class="role-title">Кандидат</div>
+          <div class="role-desc">Нужен специальный код</div>
+        </button>
+      </div>
+
+      <footer class="footer">
+        <a href="admin.html" class="admin-link">admin</a>
+      </footer>
+    </section>
+
+    <!-- ЭКРАН 2: КОД КАНДИДАТА -->
+    <section id="codeScreen" class="screen" hidden>
+      <header class="header">
+        <div class="badge">Кандидат</div>
+        <h1>Введите код</h1>
+        <p class="subtitle">Код выдал организатор выборов</p>
+      </header>
+
+      <div class="card">
+        <input type="text" id="candidateCodeInput" placeholder="cand-xxxxxxxx-xxxx-…" autocomplete="off">
+        <button class="btn" id="codeSubmitBtn" style="width:100%;margin-top:12px;">Войти</button>
+      </div>
+
+      <button class="btn btn-ghost" id="codeBackBtn" style="width:100%;">← Назад</button>
+    </section>
+
+    <!-- ЭКРАН 3: ГОЛОСОВАНИЕ -->
+    <section id="voteScreen" class="screen" hidden>
+      <header class="header">
+        <div class="badge" id="roleBadge">Голосующий</div>
+        <h1>Выберите кандидата</h1>
+        <p class="subtitle">Голос нельзя изменить.</p>
+      </header>
+
+      <section id="winnerBanner" class="winner-banner" hidden>
+        <div class="badge badge-success">Итоги подведены</div>
+        <h2 id="winnerName"></h2>
+        <div id="winnerStats" class="winner-stats"></div>
+      </section>
+
+      <section id="candidates" class="candidates">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </section>
+
+      <button id="voteBtn" class="vote-btn" disabled>
+        <span>Проголосовать</span>
+      </button>
+
+      <div id="msg" class="msg" hidden></div>
+
+      <footer class="footer">
+        <span id="status">Загрузка…</span>
+        <a href="index.html" class="link-dim">← Главная</a>
+      </footer>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

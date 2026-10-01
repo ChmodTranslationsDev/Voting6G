@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Админ — Выборы старосты</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <!-- ЭКРАН 1: ЛОГИН -->
+  <div id="loginScreen" class="login-wrapper">
+    <div class="login-card">
+      <div class="login-icon">🔐</div>
+      <h2>Вход в админ-панель</h2>
+      <p class="login-hint">Введите пароль администратора</p>
+      <input type="password" id="passwordInput" placeholder="Пароль" autocomplete="current-password">
+      <button class="btn login-btn" id="loginBtn">Войти</button>
+      <div class="login-error" id="loginError"></div>
+      <a href="index.html" class="login-back">← На основной сайт</a>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 2: ПАНЕЛЬ -->
+  <main id="adminScreen" class="container" hidden>
+    <header class="header">
+      <div class="badge">Админ-панель</div>
+      <h1>Управление выборами</h1>
+      <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
+    </header>
+
+    <div class="admin-grid">
+
+      <div class="card">
+        <h2>1. Статистика</h2>
+        <div id="statsBox">Загрузка…</div>
+        <div class="divider"></div>
+        <button class="btn btn-ghost" id="refreshBtn" style="width:100%;">🔄 Обновить</button>
+      </div>
+
+      <div class="card">
+        <h2>2. ID для голосующего вручную</h2>
+        <p class="hint">Сгенерируй ID и передай ученику, у которого не работает сайт.</p>
+        <button class="btn btn-ghost" id="genIdBtn">Сгенерировать ID</button>
+        <div id="idBox" class="id-box" style="margin-top:12px; display:none;"></div>
+      </div>
+
+      <div class="card">
+        <h2>3. Добавить голос вручную</h2>
+        <div class="row-flex" style="margin-bottom:10px;">
+          <select id="candidateSelect"></select>
+        </div>
+        <div class="row-flex">
+          <input type="text" id="voterIdInput" placeholder="ID избирателя">
+          <button class="btn" id="addVoteBtn">Добавить</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>4. Коды кандидатов</h2>
+        <p class="hint">Генерирует коды один раз. Скопируй сразу — потом только в таблице.</p>
+        <button class="btn" id="genCodesBtn" style="width:100%;">Сгенерировать коды всем кандидатам</button>
+        <div class="divider"></div>
+        <button class="btn btn-ghost" id="loadCodesBtn" style="width:100%;">Показать текущие коды</button>
+        <div id="codesList" style="margin-top:14px;"></div>
+      </div>
+
+      <div class="card">
+        <h2>5. Итоги</h2>
+        <div class="row-flex">
+          <button class="btn" id="finishBtn" style="flex:1;">Подвести итоги</button>
+          <button class="btn btn-danger" id="resetBtn">Сбросить</button>
+        </div>
+      </div>
+
+      <div id="adminMsg" class="msg" hidden></div>
+    </div>
+  </main>
+
+  <script>
+    const API = 'https://script.google.com/macros/s/AKfycbx-q6KrRblC-RlBMZiX_HtSLojXTipBDrwVXho1Ifdmk2YlhT_Mo5VqCA4pJI3FHQDx/exec';
+    let password = sessionStorage.getItem('adminPwd') || '';
+
+    const $ = id => document.getElementById(id);
+
+    function showMsg(text, type = 'ok') {
+      const m = $('adminMsg');
+      m.textContent = text;
+      m.className = 'msg ' + type;
+      m.hidden = false;
+      setTimeout(() => { m.hidden = true; }, 3500);
+    }
+
+    // ===== GET (JSONP) =====
+    function apiGet(params) {
+      const url = API + '?' + new URLSearchParams(params).toString();
+      return new Promise((resolve, reject) => {
+        const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        let script = null;
+        function cleanup() {
+          try { delete window[cb]; } catch (e) {}
+          if (script && script.parentNode) script.parentNode.removeChild(script);
+        }
+        const timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 20000);
+        window[cb] = data => { clearTimeout(timer); resolve(data); cleanup(); };
+        script = document.createElement('script');
+        script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+        script.onerror = () => { clearTimeout(timer); cleanup(); reject(new Error('jsonp error')); };
+        document.head.appendChild(script);
+      });
+    }
+
+    // ===== POST (no-cors) =====
+    async function apiPost(data) {
+      try {
+        await fetch(API, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(data)
+        });
+        return { ok: true };
+      } catch (e) {
+        console.error('apiPost error:', e);
+        return { error: 'network_error' };
+      }
+    }
+
+    // ===== ЛОГИН =====
+    $('loginBtn').onclick = async () => {
+      const pwd = $('passwordInput').value.trim();
+      const errorBox = $('loginError');
+      if (!pwd) {
+        errorBox.textContent = '❌ Введите пароль';
+        return;
+      }
+
+      await apiPost({ action: 'adminLogin', password: pwd });
+      await new Promise(r => setTimeout(r, 600));
+
+      // Проверяем результат через GET (там проверить нельзя, поэтому просто считаем, что ок)
+      // Если пароль неверный — узнаем только когда действия не пройдут
+      password = pwd;
+      sessionStorage.setItem('adminPwd', pwd);
+      showAdmin();
+    };
+
+    $('passwordInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') $('loginBtn').click();
+    });
+
+    $('logoutBtn').onclick = () => {
+      sessionStorage.removeItem('adminPwd');
+      password = '';
+      location.reload();
+    };
+
+    // ===== ЭКРАНЫ =====
+    function showLogin() {
+      $('loginScreen').style.display = 'flex';
+      $('adminScreen').hidden = true;
+    }
+
+    function showAdmin() {
+      $('loginScreen').style.display = 'none';
+      $('adminScreen').hidden = false;
+      enterPanel();
+    }
+
+    // ===== ПАНЕЛЬ =====
+    async function enterPanel() {
+      await loadCandidates();
+      await loadStats();
+    }
+
+    async function loadCandidates() {
+      const data = await apiGet({ action: 'candidates' });
+      const list = data.candidates || [];
+      const sel = $('candidateSelect');
+      sel.innerHTML = '';
+      list.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+    }
+
+    async function loadStats() {
+      const data = await apiGet({ action: 'status' });
+      const box = $('statsBox');
+
+      if (!data.results || Object.keys(data.results).length === 0) {
+        box.innerHTML = '<p style="color:var(--text-dim)">Пока нет голосов</p>';
+        return;
+      }
+
+      const entries = Object.entries(data.results).sort((a, b) => b[1] - a[1]);
+      box.innerHTML = entries.map(([name, count]) =>
+        `<div class="stats-row"><span class="stats-name">${name}</span><span class="stats-count">${count}</span></div>`
+      ).join('') +
+      `<div class="stats-row" style="margin-top:8px;padding-top:12px;border-top:1px solid var(--border)">
+         <span style="color:var(--text-dim)">Всего</span>
+         <span style="color:var(--text);font-weight:600">${data.total}</span>
+       </div>` +
+      (data.finished ? `<div style="margin-top:12px;color:var(--success);font-size:13px;">✅ Итоги: ${data.winner}</div>` : '');
+    }
+
+    $('refreshBtn').onclick = loadStats;
+
+    // ===== ID =====
+    $('genIdBtn').onclick = () => {
+      const id = 'admin_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      const box = $('idBox');
+      box.textContent = id;
+      box.style.display = 'block';
+      $('voterIdInput').value = id;
+      showMsg('ID создан (скопируй и передай)');
+    };
+
+    // ===== Ручной голос =====
+    $('addVoteBtn').onclick = async () => {
+      const candidate = $('candidateSelect').value;
+      const voterId = $('voterIdInput').value.trim();
+      if (!candidate) { showMsg('Выбери кандидата', 'err'); return; }
+      if (!voterId) { showMsg('Нужен ID', 'err'); return; }
+
+      await apiPost({ action: 'adminAddVote', password, candidate, voterId });
+      await new Promise(r => setTimeout(r, 800));
+
+      showMsg('Голос отправлен за ' + candidate);
+      $('voterIdInput').value = '';
+      $('idBox').style.display = 'none';
+      await loadStats();
+    };
+
+    // ===== Коды =====
+    $('genCodesBtn').onclick = async () => {
+      if (!confirm('Сгенерировать коды? Если коды уже есть — появятся дубликаты.')) return;
+      await apiPost({ action: 'adminGenAllCandidateCodes', password });
+      await new Promise(r => setTimeout(r, 1500));
+      await loadCodesList();
+      showMsg('Коды сгенерированы — скопируй их сразу!');
+    };
+
+    $('loadCodesBtn').onclick = loadCodesList;
+
+    async function loadCodesList() {
+      const data = await apiGet({ action: 'getCandidateCodes' });
+      const box = $('codesList');
+      if (!data.codes || !data.codes.length) {
+        box.innerHTML = '<p style="color:var(--text-dim)">Кодов пока нет</p>';
+        return;
+      }
+      box.innerHTML = data.codes.map(c =>
+        `<div class="id-box" style="margin-bottom:8px;">
+          <div style="color:var(--text-dim);font-size:11px;">${c.blocked || '—'}</div>
+          <div style="color:var(--success);user-select:all;">${c.code}</div>
+        </div>`
+      ).join('');
+    }
+
+    // ===== Итоги =====
+    $('finishBtn').onclick = async () => {
+      if (!confirm('Подвести итоги? Победитель появится на основном сайте.')) return;
+      await apiPost({ action: 'adminFinish', password });
+      await new Promise(r => setTimeout(r, 1000));
+      await loadStats();
+      showMsg('Итоги подведены');
+    };
+
+    $('resetBtn').onclick = async () => {
+      if (!confirm('Сбросить статус? Голоса останутся.')) return;
+      await apiPost({ action: 'adminReset', password });
+      await new Promise(r => setTimeout(r, 800));
+      await loadStats();
+      showMsg('Статус сброшен');
+    };
+
+    // ===== АВТОЛОГИН =====
+    if (password) {
+      showAdmin();
+    } else {
+      showLogin();
+    }
+  </script>
+</body>
+</html>
