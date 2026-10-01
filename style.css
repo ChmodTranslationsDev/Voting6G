@@ -532,8 +532,7 @@ input:focus, select:focus { border-color: var(--accent); }
 @media (max-width: 768px) {
 
   body {
-    /* На мобилке отступы компактнее, но верх сохраняем */
-    padding: 24px 16px 32px;
+    padding: 40px 20px 48px;    /* ← больше воздуха сверху/снизу/по бокам */
     height: 100dvh;
     min-height: 100svh;
     align-items: stretch;
@@ -541,7 +540,7 @@ input:focus, select:focus { border-color: var(--accent); }
 
   .container {
     max-width: 100%;
-    gap: 16px;
+    gap: 20px;                  /* ← было 16, стало 20 */
     margin: 0;
   }
 
@@ -556,27 +555,36 @@ input:focus, select:focus { border-color: var(--accent); }
 
   .role-card,
   .login-card {
-    padding: 28px 20px;
-    border-radius: 14px;
+    padding: 32px 24px;         /* ← больше внутренних отступов */
+    border-radius: 16px;
   }
 
   .role-icon,
-  .login-icon { font-size: 36px; margin-bottom: 8px; }
+  .login-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
 
   .role-card h2,
-  .login-card h2 { font-size: 19px; }
+  .login-card h2 {
+    font-size: 19px;
+    margin-bottom: 10px;
+  }
 
   .role-hint,
-  .login-hint { font-size: 12px; margin-bottom: 20px; }
+  .login-hint {
+    font-size: 13px;
+    margin-bottom: 24px;        /* ← больше отступ под подсказкой */
+  }
 
-  /* ВСЕ flex-контейнеры в столбец */
+  /* flex-контейнеры в столбец — с бо́льшим gap */
   .row-flex,
   .role-buttons,
   .footer,
   .admin-grid {
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 10px !important;
+    gap: 14px !important;       /* ← было 10, стало 14 */
   }
 
   .row-flex > *,
@@ -588,7 +596,6 @@ input:focus, select:focus { border-color: var(--accent); }
     flex: none !important;
   }
 
-  /* Инпуты, кнопки, селекты — на всю ширину */
   input,
   select,
   button,
@@ -600,18 +607,29 @@ input:focus, select:focus { border-color: var(--accent); }
     max-width: 100% !important;
   }
 
-  /* Логаут — под заголовком */
+  /* Роль-кнопки — больше отступ внутри */
+  .role-btn {
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+
+  .role-title { font-size: 16px; margin-bottom: 6px; }
+  .role-desc { font-size: 13px; }
+
+  /* Заголовок с логаутом */
   .header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
+    margin-bottom: 8px;
   }
 
   .logout-btn {
     position: static !important;
     width: auto !important;
     align-self: center;
+    padding: 8px 16px;
   }
 
   h1 { font-size: 22px !important; text-align: center; }
@@ -620,36 +638,61 @@ input:focus, select:focus { border-color: var(--accent); }
   .subtitle,
   .role-hint,
   .login-hint,
-  .hint { font-size: 12px; text-align: center; }
+  .hint { font-size: 13px; text-align: center; line-height: 1.5; }
 
-  .candidate { padding: 14px 16px; gap: 12px; }
-  .candidate .avatar { width: 36px; height: 36px; font-size: 14px; }
+  /* Кандидаты — больше воздуха */
+  .candidates { gap: 12px; }
+
+  .candidate {
+    padding: 16px 18px;
+    gap: 14px;
+  }
+
+  .candidate .avatar { width: 38px; height: 38px; font-size: 15px; }
   .candidate .name { font-size: 15px; }
 
-  .vote-btn { padding: 14px; font-size: 15px; }
+  .vote-btn { padding: 16px; font-size: 15px; }
 
-  .card { padding: 16px; }
-  .card h2 { font-size: 15px; margin-bottom: 12px; }
+  /* Карточки админа — больше воздуха */
+  .card {
+    padding: 20px 18px;
+    margin-bottom: 4px;
+  }
 
-  .btn { padding: 11px 14px; font-size: 13px; }
+  .card h2 {
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
 
-  .msg { padding: 12px 14px; font-size: 13px; }
+  .btn {
+    padding: 13px 16px;
+    font-size: 14px;
+  }
 
-  .id-box { font-size: 12px; padding: 10px; }
+  .msg { padding: 14px 16px; font-size: 13px; }
 
-  .footer { font-size: 11px; }
+  .id-box { font-size: 12px; padding: 12px; }
+
+  .footer {
+    font-size: 11px;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .divider { margin: 12px 0; }
+
+  .stats-row { padding: 10px 0; }
 }
-
 @media (max-width: 380px) {
-  body { padding: 20px 12px 24px; }
+  body { padding: 32px 14px 40px; }
 
   .role-card,
   .login-card,
-  .card { padding: 22px 16px; }
+  .card { padding: 24px 18px; }
 
   h1 { font-size: 20px !important; }
 
-  .candidate { padding: 12px 14px; }
-  .candidate .avatar { width: 32px; height: 32px; font-size: 13px; }
+  .candidate { padding: 14px 16px; }
+  .candidate .avatar { width: 34px; height: 34px; font-size: 14px; }
   .candidate .name { font-size: 14px; }
 }
