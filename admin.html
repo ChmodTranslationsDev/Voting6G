@@ -142,8 +142,6 @@
       await apiPost({ action: 'adminLogin', password: pwd });
       await new Promise(r => setTimeout(r, 600));
 
-      // Проверяем результат через GET (там проверить нельзя, поэтому просто считаем, что ок)
-      // Если пароль неверный — узнаем только когда действия не пройдут
       password = pwd;
       sessionStorage.setItem('adminPwd', pwd);
       showAdmin();
@@ -190,6 +188,7 @@
       });
     }
 
+    // ===== СТАТИСТИКА (В ПРОЦЕНТАХ + ПОЛОСКИ) =====
     async function loadStats() {
       const data = await apiGet({ action: 'status' });
       const box = $('statsBox');
@@ -199,12 +198,25 @@
         return;
       }
 
+      const total = data.total || 1;
       const entries = Object.entries(data.results).sort((a, b) => b[1] - a[1]);
-      box.innerHTML = entries.map(([name, count]) =>
-        `<div class="stats-row"><span class="stats-name">${name}</span><span class="stats-count">${count}</span></div>`
-      ).join('') +
+
+      box.innerHTML = entries.map(([name, count]) => {
+        const pct = (count / total * 100);
+        return `
+          <div style="margin:14px 0;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span class="stats-name">${name}</span>
+              <span class="stats-count">${pct.toFixed(1)}%</span>
+            </div>
+            <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden;">
+              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:4px;transition:width .4s;"></div>
+            </div>
+          </div>
+        `;
+      }).join('') +
       `<div class="stats-row" style="margin-top:8px;padding-top:12px;border-top:1px solid var(--border)">
-         <span style="color:var(--text-dim)">Всего</span>
+         <span style="color:var(--text-dim)">Всего голосов</span>
          <span style="color:var(--text);font-weight:600">${data.total}</span>
        </div>` +
       (data.finished ? `<div style="margin-top:12px;color:var(--success);font-size:13px;">✅ Итоги: ${data.winner}</div>` : '');
