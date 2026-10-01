@@ -26,9 +26,9 @@ body {
   color: var(--text);
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;       /* ← прижать к верху */
   justify-content: center;
-  padding: 24px;
+  padding: 60px 24px 40px;       /* ← 60px сверху, 40px снизу */
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
